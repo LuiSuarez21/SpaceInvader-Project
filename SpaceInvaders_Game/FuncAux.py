@@ -1,15 +1,14 @@
 import math
-import pygame
-import sys
 import random
-from pygame import mixer
-
+import pygame
+from pygame import font
 
 #game window
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Creating the screen
+pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Health Bar')
 
@@ -30,12 +29,12 @@ playerX_change = 0
 
 # Score
 score = 0
-font = pygame.font.Font('freesansbold.ttf', 32)
+fontScore = font.Font('freesansbold.ttf', 32)
 textX = 10
 textY = 10
 
 # Game Over Text
-over_font = pygame.font.Font('freesansbold.ttf', 64)
+over_font = font.Font('freesansbold.ttf', 64)
 
 # Enemys
 enemyImg = []
@@ -112,7 +111,7 @@ def isCollision(enemyX, enemyY, laserX, laserY, laser2X, laser2Y, laser_state, l
 
 #Function that displays the Score
 def show_score(x,y):
-    score_show = font.render("Score : " + str(score), True, (255, 255, 255))
+    score_show = fontScore.render("Score : " + str(score), True, (255, 255, 255))
     screen.blit(score_show, (x, y))
 
 

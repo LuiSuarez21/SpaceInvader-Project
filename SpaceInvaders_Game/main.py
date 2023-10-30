@@ -3,15 +3,6 @@ import pygame
 import sys
 import random
 from pygame import mixer
-from FuncAux import player
-from FuncAux import alien_enemy
-from FuncAux import laser_fired
-from FuncAux import laser_fired2
-from FuncAux import isCollision
-from FuncAux import HealthBar
-from FuncAux import show_score
-from FuncAux import game_over_text
-
 
 # Initialize Pygame
 pygame.init()
@@ -26,6 +17,10 @@ pygame.display.set_caption('Health Bar')
 
 # BackGround Screen
 background = pygame.image.load('backGround.png')
+
+# BackGround Sound
+# mixer.music.load('background.wav')
+# mixer.music.play(-1)
 
 # Title and Icon Edit
 pygame.display.set_caption("Space Invaders")
@@ -84,6 +79,63 @@ laser2Y_change = 2.5
 laser2_state = "ready"
 
 
+def player(x, y):
+    screen.blit(playerImg, (x, y))
+
+
+def alien_enemy(x, y, i):
+    screen.blit(enemyImg[i], (x, y))
+
+
+def laser_fired(x, y):
+    global laser_state
+    laser_state = "fire"
+    screen.blit(laserImg, (x + 18, y + 10))
+
+
+def laser_fired2(x, y):
+    global laser2_state
+    laser2_state = "fire"
+    screen.blit(laserImg, (x - 22, y + 10))
+
+
+def isCollision(enemyX, enemyY, laserX, laserY, laser2X, laser2Y, laser_state, laser2_state):
+    distance_laser = math.sqrt((math.pow(enemyX - laserX, 2) + math.pow(enemyY - laserY, 2)))
+    distance_laser2 = math.sqrt((math.pow(enemyX - laser2X, 2) + math.pow(enemyY - laser2Y, 2)))
+    if laser_state == "fire" and distance_laser < 27:
+        return True
+    elif laser2_state == "fire" and distance_laser2 < 27:
+        return True
+    else:
+        return False
+
+class HealthBar():
+    def __init__(self, x, y, w, h, max_hp):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.hp = max_hp
+        self.max_hp = max_hp
+
+    def draw(self, surface):
+        #calculate health ratio
+        ratio = self.hp / self.max_hp
+        pygame.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
+        pygame.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
+
+def show_score(x,y):
+    score_show = font.render("Score : " + str(score), True, (255, 255, 255))
+    screen.blit(score_show, (x, y))
+
+
+def game_over_text(x, y):
+    over_text = over_font.render("GAME OVER", True, (255, 255, 255))
+    x = 200
+    y = 250
+    screen.blit(over_text, (x, y))
+
+
 # Game Loop, that cloeses when it is needed
 health_bar = HealthBar(350, 550, 100, 10, 100)
 running = True
@@ -124,6 +176,7 @@ while running:
 
     # Enemy movement
     for i in range(num_enemies):
+
         # Game Over
         if enemyY[i] > 400:
             for j in range (num_enemies):
