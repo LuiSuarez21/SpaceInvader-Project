@@ -3,19 +3,29 @@ import pygame
 import sys
 import random
 from pygame import mixer
+from FuncAux import player
+from FuncAux import alien_enemy
+from FuncAux import laser_fired
+from FuncAux import laser_fired2
+from FuncAux import isCollision
+from FuncAux import HealthBar
+from FuncAux import show_score
+from FuncAux import game_over_text
+
 
 # Initialize Pygame
 pygame.init()
 
+#game window
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
 # Creating the screen
-screen = pygame.display.set_mode((800, 600))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Health Bar')
 
 # BackGround Screen
 background = pygame.image.load('backGround.png')
-
-# BackGround Sound
-# mixer.music.load('background.wav')
-# mixer.music.play(-1)
 
 # Title and Icon Edit
 pygame.display.set_caption("Space Invaders")
@@ -74,54 +84,13 @@ laser2Y_change = 2.5
 laser2_state = "ready"
 
 
-def player(x, y):
-    screen.blit(playerImg, (x, y))
-
-
-def alien_enemy(x, y, i):
-    screen.blit(enemyImg[i], (x, y))
-
-
-def laser_fired(x, y):
-    global laser_state
-    laser_state = "fire"
-    screen.blit(laserImg, (x + 18, y + 10))
-
-
-def laser_fired2(x, y):
-    global laser2_state
-    laser2_state = "fire"
-    screen.blit(laserImg, (x - 22, y + 10))
-
-
-def isCollision(enemyX, enemyY, laserX, laserY, laser2X, laser2Y, laser_state, laser2_state):
-    distance_laser = math.sqrt((math.pow(enemyX - laserX, 2) + math.pow(enemyY - laserY, 2)))
-    distance_laser2 = math.sqrt((math.pow(enemyX - laser2X, 2) + math.pow(enemyY - laser2Y, 2)))
-    if laser_state == "fire" and distance_laser < 27:
-        return True
-    elif laser2_state == "fire" and distance_laser2 < 27:
-        return True
-    else:
-        return False
-
-
-def show_score(x,y):
-    score_show = font.render("Score : " + str(score), True, (255, 255, 255))
-    screen.blit(score_show, (x, y))
-
-
-def game_over_text(x, y):
-    over_text = over_font.render("GAME OVER", True, (255, 255, 255))
-    x = 200
-    y = 250
-    screen.blit(over_text, (x, y))
-
-
 # Game Loop, that cloeses when it is needed
+health_bar = HealthBar(350, 550, 100, 10, 100)
 running = True
 while running:
     screen.fill((0, 0, 0))
     screen.blit(background, (0, 0))
+    health_bar.draw(screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -155,12 +124,13 @@ while running:
 
     # Enemy movement
     for i in range(num_enemies):
-
         # Game Over
         if enemyY[i] > 400:
             for j in range (num_enemies):
                 enemyY[j] = 2000
             game_over_text(0, 0)
+            health_bar.hp = 0
+            health_bar.draw(screen)
             break
 
         enemyX[i] += enemyX_change[i]
@@ -183,7 +153,9 @@ while running:
             score += 1
             enemyX[i] = random.randint(64, 736)
             enemyY[i] = random.randint(50, 150)
-
+            if health_bar.hp < 0:
+                health_bar.hp = 0  # Ensure it doesn't go below 0
+                health_bar.draw(screen)  # Redraw the health bar
         alien_enemy(enemyX[i], enemyY[i], i)
 
     # Laser movement
